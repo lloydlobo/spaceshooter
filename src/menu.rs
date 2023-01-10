@@ -174,25 +174,6 @@ fn menu_blink_system(
     }
 }
 
-// if gamestate.current() == &AppGameState::Game {
-//     if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
-//         gamestate.set(AppGameState::Pause).unwrap();
-//         rapier_cfg.physics_pipeline_active = false;
-//     }
-// } else if gamestate.current() == &AppGameState::Pause {
-//     if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
-//         gamestate.set(AppGameState::Game).unwrap();
-//         rapier_cfg.physics_pipeline_active = true;
-//     }
-// } else if gamestate.current() == &AppGameState::GameOver {
-//     if menu_action_state.just_pressed(MenuAction::Accept) {
-//         state.set(AppState::StartMenu).unwrap();
-//         gamestate.set(AppGameState::Invalid).unwrap();
-//     }
-//     if menu_action_state.just_pressed(MenuAction::Quit) {
-//         app_exit_events.send(AppExit);
-//     }
-// }
 fn menu_input_system(
     mut state: ResMut<State<AppState>>,
     mut gamestate: ResMut<State<AppGameState>>,
@@ -208,8 +189,17 @@ fn menu_input_system(
         rapier_cfg.physics_pipeline_active = true;
     }
 
-    if state.current() == &AppState::Game {
-        match gamestate.current() {
+    match *state.current() {
+        AppState::StartMenu => {
+            if menu_action_state.just_pressed(MenuAction::Accept) {
+                state.set(AppState::Game).unwrap();
+                gamestate.set(AppGameState::Game).unwrap();
+            }
+            if menu_action_state.just_pressed(MenuAction::Quit) {
+                app_exit_events.send(AppExit);
+            }
+        }
+        AppState::Game => match gamestate.current() {
             AppGameState::Game => {
                 if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
                     gamestate.set(AppGameState::Pause).unwrap();
@@ -232,15 +222,7 @@ fn menu_input_system(
                 }
             }
             AppGameState::Invalid => {}
-        }
-    } else if state.current() == &AppState::StartMenu {
-        if menu_action_state.just_pressed(MenuAction::Accept) {
-            state.set(AppState::Game).unwrap();
-            gamestate.set(AppGameState::Game).unwrap();
-        }
-        if menu_action_state.just_pressed(MenuAction::Quit) {
-            app_exit_events.send(AppExit);
-        }
+        },
     }
 }
 
