@@ -1,3 +1,5 @@
+use bevy::app::AppExit;
+
 use crate::prelude::*;
 
 pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
@@ -159,8 +161,74 @@ fn gameover_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
 
 //-----------------------------------------------------------------------------
 
-fn menu_input_system() {
-    todo!()
+// if gamestate.current() == &AppGameState::Game {
+//     if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
+//         gamestate.set(AppGameState::Pause).unwrap();
+//         rapier_cfg.physics_pipeline_active = false;
+//     }
+// } else if gamestate.current() == &AppGameState::Pause {
+//     if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
+//         gamestate.set(AppGameState::Game).unwrap();
+//         rapier_cfg.physics_pipeline_active = true;
+//     }
+// } else if gamestate.current() == &AppGameState::GameOver {
+//     if menu_action_state.just_pressed(MenuAction::Accept) {
+//         state.set(AppState::StartMenu).unwrap();
+//         gamestate.set(AppGameState::Invalid).unwrap();
+//     }
+//     if menu_action_state.just_pressed(MenuAction::Quit) {
+//         app_exit_events.send(AppExit);
+//     }
+// }
+fn menu_input_system(
+    mut state: ResMut<State<AppState>>,
+    mut gamestate: ResMut<State<AppGameState>>,
+    menu_action_state: Res<ActionState<MenuAction>>,
+    mut rapier_cfg: ResMut<RapierConfiguration>,
+    mut app_exit_events: EventWriter<AppExit>,
+) {
+    if state.current() != &AppState::StartMenu
+        && menu_action_state.just_pressed(MenuAction::ExitToMenu)
+    {
+        state.set(AppState::StartMenu).unwrap();
+        gamestate.set(AppGameState::Invalid).unwrap();
+        rapier_cfg.physics_pipeline_active = true;
+    }
+
+    if state.current() == &AppState::Game {
+        match gamestate.current() {
+            AppGameState::Game => {
+                if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
+                    gamestate.set(AppGameState::Pause).unwrap();
+                    rapier_cfg.physics_pipeline_active = false;
+                }
+            }
+            AppGameState::Pause => {
+                if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
+                    gamestate.set(AppGameState::Game).unwrap();
+                    rapier_cfg.physics_pipeline_active = true;
+                }
+            }
+            AppGameState::GameOver => {
+                if menu_action_state.just_pressed(MenuAction::Accept) {
+                    state.set(AppState::StartMenu).unwrap();
+                    gamestate.set(AppGameState::Invalid).unwrap();
+                }
+                if menu_action_state.just_pressed(MenuAction::Quit) {
+                    app_exit_events.send(AppExit);
+                }
+            }
+            AppGameState::Invalid => {}
+        }
+    } else if state.current() == &AppState::StartMenu {
+        if menu_action_state.just_pressed(MenuAction::Accept) {
+            state.set(AppState::Game).unwrap();
+            gamestate.set(AppGameState::Game).unwrap();
+        }
+        if menu_action_state.just_pressed(MenuAction::Quit) {
+            app_exit_events.send(AppExit);
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
