@@ -8,6 +8,7 @@
     },
     "cSpell.words": [
         "Actionlike",
+        "angvel",
         "despawn",
         "gameover",
         "Gamepad",
@@ -16,6 +17,7 @@
         "kenvector",
         "leafwing",
         "linvel",
+        "powf",
         "Vsync",
         "wgsl"
     ]
