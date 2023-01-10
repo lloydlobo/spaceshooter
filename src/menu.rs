@@ -30,6 +30,9 @@ impl Plugin for MenuPlugin {
             SystemSet::on_enter(AppState::StartMenu).with_system(start_menu),
         )
         .add_system_set(
+            SystemSet::on_enter(AppGameState::Pause).with_system(pause_menu),
+        )
+        .add_system_set(
             SystemSet::on_enter(AppGameState::GameOver)
                 .with_system(gameover_menu),
         )
@@ -119,6 +122,9 @@ fn gameover_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
             NodeBundle {
                 style: Style {
                     size: Size::new(Val::Percent(100f32), Val::Percent(100f32)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    flex_direction: FlexDirection::Column,
                     ..default()
                 },
                 ..default()
@@ -147,7 +153,44 @@ fn gameover_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
                         TextStyle {
                             font: assets.font.clone(),
                             font_size: 50f32,
-                            color: Color::rgb_u8(0xBB, 0x22, 0x22),
+                            color: Color::rgb_u8(0x88, 0x22, 0x22),
+                        },
+                    ),
+                    ..default()
+                },
+                DrawBlinkTimer(Timer::from_seconds(
+                    0.5f32,
+                    TimerMode::Repeating,
+                )),
+            ));
+        });
+}
+
+fn pause_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    size: Size::new(Val::Percent(100f32), Val::Percent(100f32)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                ..default()
+            },
+            ForState { states: vec![AppGameState::Pause] },
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                TextBundle {
+                    style: Style { ..default() },
+                    text: Text::from_section(
+                        "pause",
+                        TextStyle {
+                            font: assets.font.clone(),
+                            font_size: 100f32,
+                            color: Color::rgb_u8(0xF8, 0xE4, 0x73),
                         },
                     ),
                     ..default()
@@ -174,6 +217,8 @@ fn menu_blink_system(
     }
 }
 
+/// * Checks if this `action` pressed since the last time /
+///   [tick](ActionState::tick) was called?
 fn menu_input_system(
     mut state: ResMut<State<AppState>>,
     mut gamestate: ResMut<State<AppGameState>>,
