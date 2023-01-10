@@ -50,7 +50,7 @@ pub struct ShipAsteroidContactEvent {
     pub asteroid: Entity,
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------
 
 pub struct PlayerShipPlugin;
 
@@ -69,8 +69,9 @@ impl Plugin for PlayerShipPlugin {
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------
 
+/// Tag component to update the exhaust particle effect with speed.
 #[derive(Component)]
 pub struct ExhaustEffect;
 
@@ -143,7 +144,7 @@ fn spawn_ship(mut commands: Commands, handles: Res<SpriteAssets>) {
     ));
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------
 
 fn ship_dampening_system(
     time: Res<Time>, mut query: Query<&mut Velocity, With<Ship>>,
@@ -157,8 +158,7 @@ fn ship_dampening_system(
 
 fn ship_input_system(
     gamestate: Res<State<AppGameState>>,
-    // [ ]: Setup `LaserSpawnEvent`
-    // mut laser_spawn_events: EventWriter<LaserSpawnEvent>,
+    mut laser_spawn_events: EventWriter<LaserSpawnEvent>,
     mut query: Query<(
         &ActionState<PlayerAction>,
         &mut ExternalImpulse,
@@ -183,15 +183,27 @@ fn ship_input_system(
             } else {
                 0
             };
+
             let fire: bool = action_state.pressed(PlayerAction::Fire);
 
             if rotation != 0 {
                 velocity.angvel = rotation as f32 * ship.rotation_speed;
             }
-            let thrust_vec3 = Vec3::Y * thrust * ship.thrust;
-            impulse.impulse = (transform.rotation * thrust_vec3).truncate();
+
+            impulse.impulse = (transform.rotation
+                * (Vec3::Y * thrust * ship.thrust))
+                .truncate();
+
+            if fire && ship.cannon_timer.finished() {
+                laser_spawn_events.send(LaserSpawnEvent {
+                    transform: *transform,
+                    velocity: *velocity,
+                });
+
+                ship.cannon_timer.reset();
+            }
         }
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------

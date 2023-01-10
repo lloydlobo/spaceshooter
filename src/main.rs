@@ -4,7 +4,9 @@ mod arena;
 mod assets;
 mod background;
 mod enums;
+mod laser;
 mod menu;
+mod particle_effects;
 mod player_ship;
 mod state;
 
@@ -24,7 +26,9 @@ mod prelude {
         assets::*,
         background::*,
         enums::*,
+        laser::*,
         menu::*,
+        particle_effects::*,
         player_ship::*,
         state::*,
     };
@@ -35,15 +39,14 @@ use bevy::window::PresentMode;
 use crate::prelude::*;
 
 fn main() {
-    println!("Hello, world!");
     let mut app = App::new();
 
     app.insert_resource(ClearColor(Color::rgb_u8(0, 0, 0))); // 0.01, 0.1, 0.001
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         window: WindowDescriptor {
+            title: "SpaceShooter".to_string(),
             width: ARENA_WIDTH,
             height: ARENA_HEIGHT,
-            title: "SpaceShooter".to_string(),
             present_mode: PresentMode::AutoVsync,
             ..default()
         },
@@ -52,10 +55,9 @@ fn main() {
 
     // Compute shaders are not supported on WASM.
     #[cfg(not(target_arch = "wasm32"))]
-    // [ ]: particle_effects plugin
-    // {
-    // app.add_plugin(particle_effects::ParticleEffectsPlugin);
-    // }
+    {
+        app.add_plugin(particle_effects::ParticleEffectsPlugin);
+    }
 
     // Enable Rapier debug renders when compile in debug mode.
     #[cfg(debug_assertions)]
@@ -67,7 +69,7 @@ fn main() {
     app.add_plugin(AssetsPlugin)
         .add_plugin(ArenaPlugin)
         .add_plugin(PlayerShipPlugin)
-        // .add_plugin(LaserPlugin)
+        .add_plugin(LaserPlugin)
         // .add_plugin(AsteroidPlugin)
         // .add_plugin(HudPlugin)
         .add_plugin(MenuPlugin)

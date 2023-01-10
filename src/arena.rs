@@ -24,6 +24,8 @@ impl Plugin for ArenaPlugin {
     }
 }
 
+//----------------------------------------------------------------
+
 /// Spawns the arena.
 ///
 /// This function is called once when the game starts.
@@ -32,7 +34,7 @@ fn spawn_arena(
 ) {
     commands.insert_resource(Arena {
         asteroid_spawn_timer: Timer::from_seconds(5f32, TimerMode::Once),
-        score: 0,
+        score: 0u32,
     });
 
     // Rapier configuration without gravity.
@@ -46,8 +48,8 @@ fn movement(mut query: Query<(&Velocity, &mut Transform)>) {
         let mut updated: bool = Updated::False.into();
 
         // Wrap around screen edges.
-        let half_width = ARENA_WIDTH / 2f32;
-        let half_height = ARENA_HEIGHT / 2f32;
+        let half_width: f32 = ARENA_WIDTH / 2f32;
+        let half_height: f32 = ARENA_HEIGHT / 2f32;
 
         if x < half_width.neg() && velocity.linvel.x < 0f32 {
             x = half_width;
@@ -56,6 +58,7 @@ fn movement(mut query: Query<(&Velocity, &mut Transform)>) {
             x = half_width.neg();
             updated = Updated::True.into();
         }
+
         if y < half_height.neg() && velocity.linvel.y < 0f32 {
             y = half_height;
             updated = Updated::True.into();
