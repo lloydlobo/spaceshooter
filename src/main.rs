@@ -4,6 +4,7 @@ mod arena;
 mod assets;
 mod background;
 mod enums;
+mod menu;
 mod player_ship;
 mod state;
 
@@ -23,6 +24,7 @@ mod prelude {
         assets::*,
         background::*,
         enums::*,
+        menu::*,
         player_ship::*,
         state::*,
     };
@@ -50,6 +52,7 @@ fn main() {
 
     // Compute shaders are not supported on WASM.
     #[cfg(not(target_arch = "wasm32"))]
+    // [ ]: particle_effects plugin
     // {
     // app.add_plugin(particle_effects::ParticleEffectsPlugin);
     // }
@@ -67,7 +70,7 @@ fn main() {
         // .add_plugin(LaserPlugin)
         // .add_plugin(AsteroidPlugin)
         // .add_plugin(HudPlugin)
-        // .add_plugin(MenuPlugin)
+        .add_plugin(MenuPlugin)
         .add_plugin(StatesPlugin)
         // .add_plugin(ContactPlugin)
         // .add_plugin(ExplosionPlugin)

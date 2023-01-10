@@ -4,17 +4,19 @@ use crate::prelude::*;
 /// * One for pure Player Ship actions, during effective gameplay, added on the
 ///   player entity itself.
 /// * One for Menu actions, added as a global resource
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Actionlike)]
+#[derive(Actionlike, Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum PlayerAction {
     Forward,
     RotateLeft,
     RotateRight,
     Fire,
 }
+
 pub struct ShipAsteroidContactEvent {
     pub ship: Entity,
     pub asteroid: Entity,
 }
+
 //-----------------------------------------------------------------------------
 
 pub struct PlayerShipPlugin;
