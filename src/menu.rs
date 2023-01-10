@@ -1,5 +1,12 @@
 use crate::prelude::*;
 
+pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
+    (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
+    (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
+    (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
+    (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
+];
+
 #[derive(Component)]
 pub struct DrawBlinkTimer(pub Timer);
 
@@ -18,13 +25,6 @@ pub enum MenuAction {
     Quit,
 }
 
-const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
-    (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
-    (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
-    (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
-    (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
-];
-
 //-----------------------------------------------------------------------------
 
 pub struct MenuPlugin;
@@ -33,7 +33,13 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_enter(AppState::StartMenu).with_system(start_menu),
-        );
+        )
+        .add_system_set(
+            SystemSet::on_enter(AppGameState::GameOver)
+                .with_system(gameover_menu),
+        )
+        .add_system(menu_input_system)
+        .add_startup_system(setup);
     }
 }
 
@@ -50,26 +56,6 @@ fn setup(mut commands: Commands) {
     // Insert MenuAction resources
     commands.insert_resource(input_map);
     commands.insert_resource(ActionState::<MenuAction>::default());
-}
-
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_menu_action_pairs() {
-        assert_eq!(KEY_ACTION_PAIRS.len(), 4);
-    }
-
-    // [ ]: Implement keycode with action.
-    #[test]
-    fn test_menu_action_pairs_keycode() {
-        KEY_ACTION_PAIRS.iter().enumerate().for_each(
-            |(i, (keycode, action))| {
-                assert_eq!(keycode, &KEY_ACTION_PAIRS[i].0);
-                assert_eq!(action, &KEY_ACTION_PAIRS[i].1);
-            },
-        );
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -123,3 +109,154 @@ fn start_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
             ));
         });
 }
+
+fn gameover_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100f32), Val::Percent(100f32)),
+                    ..default()
+                },
+                ..default()
+            },
+            ForState { states: vec![AppGameState::GameOver] },
+        ))
+        .with_children(|parent| {
+            parent.spawn((TextBundle {
+                style: Style { ..default() },
+                text: Text::from_section(
+                    "Game Over",
+                    TextStyle {
+                        font: assets.font.clone(),
+                        font_size: 100f32,
+                        color: Color::rgb_u8(0xAA, 0x22, 0x22),
+                    },
+                ),
+                ..default()
+            },));
+
+            parent.spawn((
+                TextBundle {
+                    style: Style { ..default() },
+                    text: Text::from_section(
+                        "enter",
+                        TextStyle {
+                            font: assets.font.clone(),
+                            font_size: 50f32,
+                            color: Color::rgb_u8(0xBB, 0x22, 0x22),
+                        },
+                    ),
+                    ..default()
+                },
+                DrawBlinkTimer(Timer::from_seconds(
+                    0.5f32,
+                    TimerMode::Repeating,
+                )),
+            ));
+        });
+}
+
+//-----------------------------------------------------------------------------
+
+fn menu_input_system() {
+    todo!()
+}
+
+//-----------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_menu_action_pairs() {
+        assert_eq!(KEY_ACTION_PAIRS.len(), 4);
+    }
+
+    // [ ]: Implement keycode with action.
+    #[test]
+    fn test_menu_action_pairs_keycode() {
+        KEY_ACTION_PAIRS.iter().enumerate().for_each(
+            |(i, (keycode, action))| {
+                assert_eq!(keycode, &KEY_ACTION_PAIRS[i].0);
+                assert_eq!(action, &KEY_ACTION_PAIRS[i].1);
+            },
+        );
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+mod keys {
+    #![allow(unused)]
+
+    use std::{
+        iter::Enumerate,
+        slice::Iter,
+    };
+
+    use crate::prelude::*;
+
+    pub const ACTIONS: [MenuAction; 4] = [
+        MenuAction::Accept,
+        MenuAction::PauseUnpause,
+        MenuAction::ExitToMenu,
+        MenuAction::Quit,
+    ];
+
+    enum ActionMode {
+        KeyCode,
+        GamepadButton,
+    }
+
+    struct KeyPad {
+        key_code: Option<Vec<(KeyCode, MenuAction)>>,
+        gamepad_button: Option<Vec<(GamepadButtonType, MenuAction)>>,
+    }
+
+    fn get_keypad(actions: [MenuAction; 4], action_type: ActionMode) -> KeyPad {
+        let actions: Enumerate<Iter<MenuAction>> = actions.iter().enumerate();
+        match action_type {
+            ActionMode::KeyCode => KeyPad {
+                key_code: Some(
+                    actions
+                        .map(|(i, a)| (get_scheme(a).0, ACTIONS[i]))
+                        .collect(),
+                ),
+                gamepad_button: None,
+            },
+            ActionMode::GamepadButton => KeyPad {
+                key_code: None,
+                gamepad_button: Some(
+                    actions
+                        .map(|(i, a)| (get_scheme(a).1, ACTIONS[i]))
+                        .collect(),
+                ),
+            },
+        }
+    }
+
+    fn get_scheme(menu_action: &MenuAction) -> (KeyCode, GamepadButtonType) {
+        match menu_action {
+            MenuAction::Accept => (KeyCode::Return, GamepadButtonType::South),
+            MenuAction::PauseUnpause => {
+                (KeyCode::Escape, GamepadButtonType::Start)
+            }
+            MenuAction::ExitToMenu => {
+                (KeyCode::Back, GamepadButtonType::Select)
+            }
+            MenuAction::Quit => (KeyCode::Escape, GamepadButtonType::East),
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
