@@ -41,6 +41,8 @@ fn spawn_background(
     });
 }
 
+//----------------------------------------------------------------
+
 #[derive(Debug, Clone, AsBindGroup, TypeUuid)]
 #[uuid = "d1776d38-712a-11ec-90d6-0242ac120003"]
 struct BackgroundMaterial {}

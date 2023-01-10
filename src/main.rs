@@ -4,6 +4,7 @@ mod arena;
 mod assets;
 mod background;
 mod enums;
+mod player_ship;
 mod state;
 
 // https://github.com/BorisBoutillier/Kataster/blob/main/src/main.rs
@@ -22,6 +23,7 @@ mod prelude {
         assets::*,
         background::*,
         enums::*,
+        player_ship::*,
         state::*,
     };
 }
@@ -57,18 +59,18 @@ fn main() {
     app.add_plugin(RapierDebugRenderPlugin::default());
 
     app.add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(10f32));
-    // app.add_plugin(InputManagerPlugin::<MenuAction>::default());
+    app.add_plugin(InputManagerPlugin::<MenuAction>::default());
 
     app.add_plugin(AssetsPlugin)
         .add_plugin(ArenaPlugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
-        // .add_plugin(plugin)
+        .add_plugin(PlayerShipPlugin)
+        // .add_plugin(LaserPlugin)
+        // .add_plugin(AsteroidPlugin)
+        // .add_plugin(HudPlugin)
+        // .add_plugin(MenuPlugin)
+        .add_plugin(StatesPlugin)
+        // .add_plugin(ContactPlugin)
+        // .add_plugin(ExplosionPlugin)
         .add_plugin(BackgroundPlugin);
 
     app.add_state(AppState::StartMenu).add_state(AppGameState::Invalid);
