@@ -2,13 +2,6 @@ use bevy::app::AppExit;
 
 use crate::prelude::*;
 
-pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
-    (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
-    (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
-    (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
-    (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
-];
-
 #[derive(Component)]
 pub struct DrawBlinkTimer(pub Timer);
 
@@ -41,9 +34,17 @@ impl Plugin for MenuPlugin {
                 .with_system(gameover_menu),
         )
         .add_system(menu_input_system)
+        .add_system(menu_blink_system)
         .add_startup_system(setup);
     }
 }
+
+pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
+    (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
+    (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
+    (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
+    (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
+];
 
 /// * Insert a mapping between `input` and `action`.
 /// * Pushes a [`Command`] to the queue for inserting a [`Resource`] in the
@@ -160,6 +161,18 @@ fn gameover_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
 }
 
 //----------------------------------------------------------------
+
+fn menu_blink_system(
+    time: Res<Time>, mut query: Query<(&mut DrawBlinkTimer, &mut Visibility)>,
+) {
+    for (mut blink_timer, mut visibility) in query.iter_mut() {
+        blink_timer.0.tick(time.delta());
+
+        if blink_timer.0.finished() {
+            visibility.is_visible = !visibility.is_visible;
+        }
+    }
+}
 
 // if gamestate.current() == &AppGameState::Game {
 //     if menu_action_state.just_pressed(MenuAction::PauseUnpause) {
