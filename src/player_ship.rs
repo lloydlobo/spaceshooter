@@ -65,7 +65,10 @@ impl Plugin for PlayerShipPlugin {
             .add_system_set(
                 SystemSet::on_update(AppState::Game)
                     .with_system(ship_input_system)
-                    .with_system(ship_dampening_system),
+                    .with_system(ship_dampening_system)
+                    .with_system(ship_timers_system)
+                    .with_system(ship_invincible_color)
+                    .with_system(ship_damage.after(ContactLabel)),
             );
     }
 }
@@ -129,7 +132,7 @@ fn spawn_ship(mut commands: Commands, handles: Res<SpriteAssets>) {
             thrust: 60f32,
             life: START_LIFE,
             cannon_timer: Timer::from_seconds(0.2f32, TimerMode::Once),
-            player_id: 1,
+            player_id: 1u32,
             invincible_timer,
             invincible_time_secs: 0f32,
         },
@@ -155,6 +158,13 @@ fn ship_dampening_system(
         let elapsed: f32 = time.delta_seconds();
         velocity.angvel *= 0.1f32.powf(elapsed);
         velocity.linvel *= 0.4f32.powf(elapsed);
+    }
+}
+
+fn ship_timers_system(time: Res<Time>, mut ship: Query<&mut Ship>) {
+    for mut ship in ship.iter_mut() {
+        ship.cannon_timer.tick(time.delta());
+        ship.invincible_timer.tick(time.delta());
     }
 }
 
@@ -207,5 +217,9 @@ fn ship_input_system(
         }
     }
 }
+
+fn ship_damage() {}
+
+fn ship_invincible_color() {}
 
 //----------------------------------------------------------------

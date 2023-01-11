@@ -53,7 +53,13 @@ pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
 /// * Pushes a [`Command`] to the queue for inserting a [`Resource`] in the
 ///   [`World`] with a specific value.
 fn setup(mut commands: Commands) {
-    let mut input_map = InputMap::<MenuAction>::new(KEY_ACTION_PAIRS);
+    // let mut input_map = InputMap::<MenuAction>::new(KEY_ACTION_PAIRS);
+    let mut input_map = InputMap::<MenuAction>::new([
+        (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
+        (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
+        (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
+        (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
+    ]);
     input_map.insert(GamepadButtonType::Select, MenuAction::ExitToMenu);
     input_map.insert(GamepadButtonType::Start, MenuAction::PauseUnpause);
     input_map.insert(GamepadButtonType::South, MenuAction::Accept);
@@ -85,7 +91,7 @@ fn start_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
             parent.spawn((TextBundle {
                 style: Style { ..default() },
                 text: Text::from_section(
-                    "SpaceShooter",
+                    "SpaceGuardian",
                     TextStyle {
                         font: assets.font.clone(),
                         font_size: 100f32,
@@ -217,7 +223,7 @@ fn menu_blink_system(
     }
 }
 
-/// * Checks if this `action` pressed since the last time /
+/// * Checks if this `action` pressed since the last time
 ///   [tick](ActionState::tick) was called?
 // [MenuAction::Accept, MenuAction::Quit].iter().for_each(|a| {
 //     match (a, menu_action_state.just_pressed(*a)) {

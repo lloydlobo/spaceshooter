@@ -55,10 +55,4 @@ impl Material2d for BackgroundMaterial {
     fn fragment_shader() -> ShaderRef {
         "background.wgsl".into()
     }
-
-    // fn specialize( descriptor: &mut
-    // bevy::render::render_resource::RenderPipelineDescriptor, layout:
-    // &bevy::render::mesh::MeshVertexBufferLayout, key:
-    // bevy::sprite::Material2dKey<Self>,) -> Result<(),
-    // bevy::render::render_resource::SpecializedMeshPipelineError> { Ok(()) }
 }

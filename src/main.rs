@@ -5,7 +5,6 @@ mod assets;
 mod asteroid;
 mod background;
 mod contact;
-mod enums;
 mod explosion;
 mod hud;
 mod laser;
@@ -31,12 +30,10 @@ mod prelude {
         asteroid::*,
         background::*,
         contact::*,
-        enums::*,
         explosion::*,
         hud::*,
         laser::*,
         menu::*,
-        particle_effects::*,
         player_ship::*,
         state::*,
     };
@@ -52,7 +49,7 @@ fn main() {
     app.insert_resource(ClearColor(Color::rgb_u8(0, 0, 0))); // 0.01, 0.1, 0.001
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         window: WindowDescriptor {
-            title: "SpaceShooter".to_string(),
+            title: "SpaceGuardian".to_string(),
             width: ARENA_WIDTH,
             height: ARENA_HEIGHT,
             present_mode: PresentMode::AutoVsync,

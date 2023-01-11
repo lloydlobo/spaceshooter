@@ -62,21 +62,21 @@ fn catch_explosion_event(
                 handles.ship_explosion.clone(),
                 audios.ship_explosion.clone(),
                 Vec2::new(42f32, 39f32),
-                5.0f32,
+                5f32,
                 1.5f32,
             ),
             ExplosionKind::ShipContact => (
                 handles.ship_contact.clone(),
                 audios.ship_contact.clone(),
                 Vec2::new(42f32, 39f32),
-                2.0f32,
+                2f32,
                 0.5f32,
             ),
             ExplosionKind::LaserOnAsteroid => (
                 handles.asteroid_explosion.clone(),
                 audios.asteroid_explosion.clone(),
                 Vec2::new(36f32, 32f32),
-                5.0f32,
+                5f32,
                 1.5f32,
             ),
         };
@@ -124,14 +124,19 @@ fn animate_explosion(
 ) {
     let elapsed: std::time::Duration = time.delta();
 
-    query.iter_mut().for_each(|(entity, mut transform, mut explosion)| {
+    for (entity, mut transform, mut explosion) in query.iter_mut() {
         explosion.timer.tick(elapsed);
         if explosion.timer.finished() {
             commands.entity(entity).despawn();
         } else {
-            transform.scale = Vec3::splat(get_new_scale(&mut explosion));
+            transform.scale = Vec3::splat(
+                explosion.start_scale
+                    + (explosion.end_scale - (explosion).start_scale)
+                        * (explosion.timer.elapsed_secs()
+                            / explosion.timer.duration().as_secs_f32()),
+            );
         }
-    });
+    }
 }
 
 /// Get the new scale of the explosion.

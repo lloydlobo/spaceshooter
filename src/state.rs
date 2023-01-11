@@ -31,21 +31,21 @@ pub struct StatesPlugin;
 
 impl Plugin for StatesPlugin {
     fn build(&self, app: &mut App) {
-        const APP_STATES: [AppState; 2] = [AppState::StartMenu, AppState::Game];
-        const APP_GAME_STATES: [AppGameState; 4] = [
-            AppGameState::Invalid,
-            AppGameState::Game,
-            AppGameState::Pause,
-            AppGameState::GameOver,
-        ];
-
-        for state in APP_STATES.into_iter() {
+        for state in [AppState::StartMenu, AppState::Game].into_iter() {
             app.add_system_set(
                 SystemSet::on_enter(state)
                     .with_system(state_enter_despawn::<AppState>),
             );
         }
-        for state in APP_GAME_STATES.into_iter() {
+
+        for state in [
+            AppGameState::Invalid,
+            AppGameState::Game,
+            AppGameState::Pause,
+            AppGameState::GameOver,
+        ]
+        .into_iter()
+        {
             app.add_system_set(
                 SystemSet::on_enter(state)
                     .with_system(state_enter_despawn::<AppGameState>),

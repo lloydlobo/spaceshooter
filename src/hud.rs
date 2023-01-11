@@ -15,8 +15,8 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_update(AppState::Game)
-                // .with_system(hud_score_system)
-                // .with_system(hud_life_system),
+                .with_system(hud_score_system)
+                .with_system(hud_life_system),
         )
         .add_system_set(
             SystemSet::on_enter(AppState::Game).with_system(hud_spawn),
@@ -108,5 +108,28 @@ fn hud_spawn(mut commands: Commands, assets: ResMut<UiAssets>) {
         });
 }
 
-fn hud_life_system() {}
-fn hud_score_system() {}
+fn hud_life_system(
+    arena: Res<Arena>, mut query: Query<&mut Text, With<UiScore>>,
+) {
+    if arena.is_changed() {
+        for mut text in query.iter_mut() {
+            text.sections[0].value = format!("{}", arena.score);
+        }
+    }
+}
+
+fn hud_score_system(
+    ship_query: Query<&Ship>,
+    mut uilife_query: Query<(&mut Visibility, &UiLife)>,
+) {
+    let mut life: u32 = 0u32;
+    for ship in ship_query.iter() {
+        if ship.player_id == 1u32 {
+            life = ship.life;
+        }
+    }
+
+    for (mut visibility, uilife) in uilife_query.iter_mut() {
+        visibility.is_visible = life >= uilife.min;
+    }
+}

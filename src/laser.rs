@@ -14,6 +14,8 @@ pub struct Laser {
     pub despawn_timer: Timer,
 }
 
+//----------------------------------------------------------------
+
 pub struct LaserPlugin;
 
 impl Plugin for LaserPlugin {
@@ -39,12 +41,10 @@ fn spawn_laser(
 ) {
     for spawn_event in laser_spawn_events.iter() {
         let transform: Transform = spawn_event.transform;
-
         let velocity = Velocity::linear(
             (spawn_event.velocity.linvel * Vec2::Y)
                 + Vec3::truncate(transform.rotation * Vec3::Y * 500f32),
         );
-
         commands.spawn((
             SpriteBundle {
                 sprite: Sprite {
@@ -57,6 +57,7 @@ fn spawn_laser(
                         transform.translation.y,
                         2f32,
                     ),
+                    rotation: transform.rotation,
                     ..default()
                 },
                 texture: handles.laser.clone(),
@@ -65,7 +66,7 @@ fn spawn_laser(
             Laser { despawn_timer: Timer::from_seconds(2f32, TimerMode::Once) },
             ForState { states: vec![AppState::Game] },
             RigidBody::Dynamic,
-            Collider::cuboid(2.5f32, 10.0f32),
+            Collider::cuboid(2.5f32, 10f32),
             velocity,
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
@@ -82,12 +83,13 @@ fn laser_timeout_system(
     gamestate: Res<State<AppGameState>>,
     mut query: Query<(Entity, &mut Laser)>,
 ) {
-    if let &AppGameState::Game = gamestate.current() {
-        query.iter_mut().for_each(|(entity, mut laser)| {
+    if gamestate.current() == &AppGameState::Game {
+        for (entity, mut laser) in query.iter_mut() {
             laser.despawn_timer.tick(time.delta());
+
             if laser.despawn_timer.finished() {
                 commands.entity(entity).despawn();
             }
-        });
+        }
     }
 }

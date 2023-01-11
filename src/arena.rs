@@ -33,7 +33,7 @@ fn spawn_arena(
     mut commands: Commands, mut rapier_cfg: ResMut<RapierConfiguration>,
 ) {
     commands.insert_resource(Arena {
-        asteroid_spawn_timer: Timer::from_seconds(5f32, TimerMode::Once),
+        asteroid_spawn_timer: Timer::from_seconds(5.0f32, TimerMode::Once),
         score: 0u32,
     });
 
@@ -45,7 +45,8 @@ fn movement(mut query: Query<(&Velocity, &mut Transform)>) {
     for (velocity, mut transform) in query.iter_mut() {
         let mut x: f32 = transform.translation.x;
         let mut y: f32 = transform.translation.y;
-        let mut updated: bool = Updated::False.into();
+        // let mut updated: bool = Updated::False.into();
+        let mut updated: bool = false;
 
         // Wrap around screen edges.
         let half_width: f32 = ARENA_WIDTH / 2f32;
@@ -53,18 +54,22 @@ fn movement(mut query: Query<(&Velocity, &mut Transform)>) {
 
         if x < half_width.neg() && velocity.linvel.x < 0f32 {
             x = half_width;
-            updated = Updated::True.into();
+            // updated = Updated::True.into();
+            updated = true;
         } else if x > half_width && velocity.linvel.x > 0f32 {
             x = half_width.neg();
-            updated = Updated::True.into();
+            /* updated = Updated::True.into(); */
+            updated = true;
         }
 
         if y < half_height.neg() && velocity.linvel.y < 0f32 {
             y = half_height;
-            updated = Updated::True.into();
+            /* updated = Updated::True.into(); */
+            updated = true;
         } else if y > half_height && velocity.linvel.y > 0f32 {
             y = half_height.neg();
-            updated = Updated::True.into();
+            // updated = Updated::True.into();
+            updated = true;
         }
 
         if updated {

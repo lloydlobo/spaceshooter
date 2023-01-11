@@ -46,7 +46,7 @@ fn contact_system(
                 laser_asteroid_contact_events.send(LaserAsteroidContactEvent {
                     laser: *e2,
                     asteroid: *e1,
-                })
+                });
             }
             if asteroids.get_component::<Asteroid>(*e2).is_ok()
                 && lasers.get_component::<Laser>(*e1).is_ok()
@@ -54,7 +54,7 @@ fn contact_system(
                 laser_asteroid_contact_events.send(LaserAsteroidContactEvent {
                     laser: *e1,
                     asteroid: *e2,
-                })
+                });
             }
         }
     }
