@@ -67,6 +67,11 @@ fn catch_explosion_event(
         commands.spawn((
             SpriteBundle {
                 sprite: Sprite { custom_size: Some(start_size), ..default() },
+                transform: Transform {
+                    translation: Vec3::new(event.x, event.y, 3f32),
+                    ..default()
+                },
+                texture,
                 ..default()
             },
             Explosion {
