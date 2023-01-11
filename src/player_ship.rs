@@ -229,13 +229,12 @@ fn ship_damage(
             .get_mut(event.ship)
             .expect("Ship referenced in event should not exist");
 
-        // [ ]: Pattern match methods on ship?
         if ship.invincible_timer.finished() {
             ship.invincible_time_secs = 0f32;
-            ship.life -= 1;
+            ship.life -= 1u32;
 
             match ship.life {
-                0 => {
+                0u32 => {
                     explosion_spawn_events.send(SpawnExplosionEvent {
                         kind: ExplosionKind::ShipDead,
                         x: ship_transform.translation.x,

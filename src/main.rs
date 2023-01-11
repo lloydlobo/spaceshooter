@@ -1,4 +1,6 @@
+#![deny(clippy::pedantic)]
 #![allow(clippy::too_many_arguments)]
+#![allow(clippy::module_name_repetitions)]
 
 mod arena;
 mod assets;
