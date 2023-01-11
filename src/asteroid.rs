@@ -81,7 +81,6 @@ impl Plugin for AsteroidPlugin {
     }
 }
 
-
 //----------------------------------------------------------------
 
 fn spawn_asteroid_event(

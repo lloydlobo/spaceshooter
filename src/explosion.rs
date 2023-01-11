@@ -18,12 +18,20 @@ pub struct Explosion {
     start_scale: f32,
     end_scale: f32,
 }
-
 //----------------------------------------------------------------
 
 pub struct ExplosionPlugin;
 
 impl Plugin for ExplosionPlugin {
+    /// Builds the explosion module.
+    ///
+    /// # Parameters
+    ///
+    /// * `app` - The application to build the module on.
+    ///
+    /// # Returns
+    ///
+    /// * `()` - Nothing.
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnExplosionEvent>()
             .add_system(animate_explosion)
@@ -33,6 +41,15 @@ impl Plugin for ExplosionPlugin {
 
 //----------------------------------------------------------------
 
+/// Catch explosion event
+///
+/// # Arguments
+///
+/// * `commands` - Commands
+/// * `event_reader` - Event reader
+/// * `handles` - Sprite assets
+/// * `audios` - Audio assets
+/// * `audio_output` - Audio output
 fn catch_explosion_event(
     mut commands: Commands, mut event_reader: EventReader<SpawnExplosionEvent>,
     handles: Res<SpriteAssets>, audios: Res<AudioAssets>,
@@ -86,12 +103,48 @@ fn catch_explosion_event(
     }
 }
 
+/// Animate the explosion.
+///
+/// This function is called every frame.
+///
+/// # Arguments
+///
+/// * `commands` - The commands to be executed.
+/// * `time` - The time.
+/// * `query` - The query.
+///
+/// # Examples
+///
+/// ```ignore
+/// animate_explosion(commands, time, query);
+/// ```
 fn animate_explosion(
     mut commands: Commands, time: Res<Time>,
     mut query: Query<(Entity, &mut Transform, &mut Explosion)>,
 ) {
     let elapsed: std::time::Duration = time.delta();
-    for (entity, mut transform, mut explosion) in query.iter_mut() {
+
+    query.iter_mut().for_each(|(entity, mut transform, mut explosion)| {
         explosion.timer.tick(elapsed);
-    }
+        if explosion.timer.finished() {
+            commands.entity(entity).despawn();
+        } else {
+            transform.scale = Vec3::splat(get_new_scale(&mut explosion));
+        }
+    });
+}
+
+/// Get the new scale of the explosion.
+///
+/// # Arguments
+///
+/// * `e` - The explosion to get the new scale of.
+///
+/// # Returns
+///
+/// The new scale of the explosion.
+fn get_new_scale(e: &mut Explosion) -> f32 {
+    let diff: f32 = e.end_scale - e.start_scale;
+    let time: f32 = e.timer.elapsed_secs() / e.timer.duration().as_secs_f32();
+    e.start_scale + diff * time
 }

@@ -24,5 +24,38 @@ fn contact_system(
     mut laser_asteroid_contact_events: EventWriter<LaserAsteroidContactEvent>,
     ships: Query<&Ship>, lasers: Query<&Laser>, asteroids: Query<&Asteroid>,
 ) {
-    todo!()
+    for event in collision_events.iter() {
+        if let CollisionEvent::Started(e1, e2, _flags) = event {
+            if ships.get(*e1).is_ok() && asteroids.get(*e2).is_ok() {
+                ship_asteroid_contact_events.send(ShipAsteroidContactEvent {
+                    ship: *e1,
+                    asteroid: *e2,
+                });
+            }
+
+            if ships.get(*e2).is_ok() && asteroids.get(*e1).is_ok() {
+                ship_asteroid_contact_events.send(ShipAsteroidContactEvent {
+                    ship: *e2,
+                    asteroid: *e1,
+                });
+            }
+
+            if asteroids.get_component::<Asteroid>(*e1).is_ok()
+                && lasers.get_component::<Laser>(*e2).is_ok()
+            {
+                laser_asteroid_contact_events.send(LaserAsteroidContactEvent {
+                    laser: *e2,
+                    asteroid: *e1,
+                })
+            }
+            if asteroids.get_component::<Asteroid>(*e2).is_ok()
+                && lasers.get_component::<Laser>(*e1).is_ok()
+            {
+                laser_asteroid_contact_events.send(LaserAsteroidContactEvent {
+                    laser: *e1,
+                    asteroid: *e2,
+                })
+            }
+        }
+    }
 }

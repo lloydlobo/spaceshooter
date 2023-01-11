@@ -7,6 +7,7 @@ mod background;
 mod contact;
 mod enums;
 mod explosion;
+mod hud;
 mod laser;
 mod menu;
 mod particle_effects;
@@ -32,6 +33,7 @@ mod prelude {
         contact::*,
         enums::*,
         explosion::*,
+        hud::*,
         laser::*,
         menu::*,
         particle_effects::*,
@@ -77,10 +79,10 @@ fn main() {
         .add_plugin(PlayerShipPlugin)
         .add_plugin(LaserPlugin)
         .add_plugin(AsteroidPlugin)
-        // .add_plugin(HudPlugin)
+        .add_plugin(HudPlugin)
         .add_plugin(MenuPlugin)
         .add_plugin(StatesPlugin)
-        // .add_plugin(ContactPlugin)
+        .add_plugin(ContactPlugin)
         .add_plugin(ExplosionPlugin)
         .add_plugin(BackgroundPlugin);
 

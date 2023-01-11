@@ -85,6 +85,7 @@ fn spawn_ship(mut commands: Commands, handles: Res<SpriteAssets>) {
         (KeyCode::D, PlayerAction::RotateRight),
         (KeyCode::Right, PlayerAction::RotateRight),
         (KeyCode::Space, PlayerAction::Fire),
+        (KeyCode::I, PlayerAction::Fire),
     ]);
 
     input_map.insert(GamepadButtonType::South, PlayerAction::Fire);

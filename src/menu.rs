@@ -289,7 +289,6 @@ mod tests {
         assert_eq!(KEY_ACTION_PAIRS.len(), 4);
     }
 
-    // [ ]: Implement keycode with action.
     #[test]
     fn test_menu_action_pairs_keycode() {
         KEY_ACTION_PAIRS.iter().enumerate().for_each(
