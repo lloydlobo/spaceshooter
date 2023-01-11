@@ -81,6 +81,7 @@ impl Plugin for AsteroidPlugin {
     }
 }
 
+
 //----------------------------------------------------------------
 
 fn spawn_asteroid_event(
@@ -175,7 +176,7 @@ fn asteroid_damage(
     mut commands: Commands,
     mut arena: ResMut<Arena>,
     mut laser_asteroid_contact_events: EventReader<LaserAsteroidContactEvent>,
-    // mut explosion_spawn_events: EventWriter<SpawnExplosionEvent>,
+    mut explosion_spawn_events: EventWriter<SpawnExplosionEvent>,
     mut asteroid_spawn_events: EventWriter<AsteroidSpawnEvent>,
     transforms: Query<&Transform>,
     asteroids: Query<(&Asteroid, &Transform, &Velocity)>,
@@ -187,11 +188,15 @@ fn asteroid_damage(
         arena.score += asteroid.size.score();
 
         {
-            // [ ]: explosion..
+            explosion_spawn_events.send(SpawnExplosionEvent {
+                kind: ExplosionKind::LaserOnAsteroid ,
+                x: laser_transform.translation.x ,
+                y: laser_transform.translation.y,
+            });
 
             if let Some((size, radius)) = asteroid.size.split() {
-                let mut rng = thread_rng();
-                for _ in 0..rng.gen_range(1u8..4u8) {
+                let mut rng: ThreadRng = thread_rng();
+                (0..rng.gen_range(1u8..4u8)).for_each(|_| {
                     let x = asteroid_transform.translation.x + rng.gen_range(radius.neg()..radius);
                     let y = asteroid_transform.translation.y + rng.gen_range(radius.neg()..radius);
                     let vx = rng.gen_range( (ARENA_WIDTH.neg() / radius)..(ARENA_WIDTH / radius),);
@@ -204,9 +209,10 @@ fn asteroid_damage(
                         vy,
                         angvel: asteroid_velocity.angvel,
                     });
-                }
+                });
             }
         }
+
         commands.entity(event.laser).despawn();
         commands.entity(event.asteroid).despawn();
     }

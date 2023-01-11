@@ -6,6 +6,7 @@ mod asteroid;
 mod background;
 mod contact;
 mod enums;
+mod explosion;
 mod laser;
 mod menu;
 mod particle_effects;
@@ -30,6 +31,7 @@ mod prelude {
         background::*,
         contact::*,
         enums::*,
+        explosion::*,
         laser::*,
         menu::*,
         particle_effects::*,
@@ -79,7 +81,7 @@ fn main() {
         .add_plugin(MenuPlugin)
         .add_plugin(StatesPlugin)
         // .add_plugin(ContactPlugin)
-        // .add_plugin(ExplosionPlugin)
+        .add_plugin(ExplosionPlugin)
         .add_plugin(BackgroundPlugin);
 
     app.add_state(AppState::StartMenu).add_state(AppGameState::Invalid);
