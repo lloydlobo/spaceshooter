@@ -19,7 +19,10 @@
         "leafwing",
         "linvel",
         "powf",
+        "rngs",
         "Vsync",
         "wgsl"
-    ]
+    ],
+    "diffEditor.codeLens": true,
+    "editor.tabCompletion": "on"
 }
