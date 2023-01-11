@@ -87,7 +87,7 @@ fn hud_spawn(mut commands: Commands, assets: ResMut<UiAssets>) {
             ForState { states: vec![AppState::Game] },
         ))
         .with_children(|parent| {
-            for i in 1..(START_LIFE + 1) {
+            for i in 1..=START_LIFE {
                 parent.spawn((
                     ImageBundle {
                         style: Style {

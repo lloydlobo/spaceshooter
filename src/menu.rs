@@ -345,7 +345,7 @@ mod keys {
             ActionMode::KeyCode => KeyPad {
                 key_code: Some(
                     actions
-                        .map(|(i, a)| (get_scheme(a).0, ACTIONS[i]))
+                        .map(|(i, a)| (get_scheme(*a).0, ACTIONS[i]))
                         .collect(),
                 ),
                 gamepad_button: None,
@@ -354,14 +354,14 @@ mod keys {
                 key_code: None,
                 gamepad_button: Some(
                     actions
-                        .map(|(i, a)| (get_scheme(a).1, ACTIONS[i]))
+                        .map(|(i, a)| (get_scheme(*a).1, ACTIONS[i]))
                         .collect(),
                 ),
             },
         }
     }
 
-    fn get_scheme(menu_action: &MenuAction) -> (KeyCode, GamepadButtonType) {
+    fn get_scheme(menu_action: MenuAction) -> (KeyCode, GamepadButtonType) {
         match menu_action {
             MenuAction::Accept => (KeyCode::Return, GamepadButtonType::South),
             MenuAction::PauseUnpause => {

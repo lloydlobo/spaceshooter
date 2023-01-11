@@ -31,7 +31,7 @@ pub struct StatesPlugin;
 
 impl Plugin for StatesPlugin {
     fn build(&self, app: &mut App) {
-        for state in [AppState::StartMenu, AppState::Game].into_iter() {
+        for state in [AppState::StartMenu, AppState::Game] {
             app.add_system_set(
                 SystemSet::on_enter(state)
                     .with_system(state_enter_despawn::<AppState>),
@@ -43,9 +43,7 @@ impl Plugin for StatesPlugin {
             AppGameState::Game,
             AppGameState::Pause,
             AppGameState::GameOver,
-        ]
-        .into_iter()
-        {
+        ] {
             app.add_system_set(
                 SystemSet::on_enter(state)
                     .with_system(state_enter_despawn::<AppGameState>),

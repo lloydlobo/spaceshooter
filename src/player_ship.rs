@@ -168,6 +168,7 @@ fn ship_timers_system(time: Res<Time>, mut ship: Query<&mut Ship>) {
     }
 }
 
+#[allow(clippy::cast_precision_loss)]
 fn ship_input_system(
     gamestate: Res<State<AppGameState>>,
     mut laser_spawn_events: EventWriter<LaserSpawnEvent>,

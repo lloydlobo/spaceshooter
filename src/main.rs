@@ -1,6 +1,7 @@
 #![deny(clippy::pedantic)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::module_name_repetitions)]
+#![allow(clippy::needless_pass_by_value)]
 
 mod arena;
 mod assets;

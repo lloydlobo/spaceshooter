@@ -38,7 +38,7 @@ pub enum AsteroidSize {
 
 impl AsteroidSize {
     /// Score marked when destroying an asteroid of this size.
-    pub fn score(&self) -> u32 {
+    pub fn score(self) -> u32 {
         match self {
             AsteroidSize::Big => 40u32,
             AsteroidSize::Medium => 20u32,
@@ -48,7 +48,7 @@ impl AsteroidSize {
 
     /// Defines for each if the `Asteroid` is splitted on destruction.
     /// And the spawned sub-asteroid size and radius of spawning.
-    pub fn split(&self) -> Option<(AsteroidSize, f32)> {
+    pub fn split(self) -> Option<(AsteroidSize, f32)> {
         match self {
             AsteroidSize::Big => Some((AsteroidSize::Medium, 10f32)),
             AsteroidSize::Medium => Some((AsteroidSize::Small, 5f32)),
