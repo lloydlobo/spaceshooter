@@ -4,6 +4,9 @@ use crate::prelude::*;
 pub struct SpriteAssets {
     pub player_ship: Handle<Image>,
     pub laser: Handle<Image>,
+    pub meteor_big: Handle<Image>,
+    pub meteor_med: Handle<Image>,
+    pub meteor_small: Handle<Image>,
 }
 
 #[derive(Debug, Resource)]
@@ -31,6 +34,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(SpriteAssets {
         player_ship: asset_server.load("playerShip2_red.png"),
         laser: asset_server.load("laserRed07.png"),
+        meteor_big: asset_server.load("meteorBrown_big1.png"),
+        meteor_med: asset_server.load("meteorBrown_med1.png"),
+        meteor_small: asset_server.load("meteorBrown_small1.png"),
     });
 
     commands.insert_resource(AudioAssets {

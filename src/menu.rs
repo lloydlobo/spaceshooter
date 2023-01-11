@@ -219,6 +219,13 @@ fn menu_blink_system(
 
 /// * Checks if this `action` pressed since the last time /
 ///   [tick](ActionState::tick) was called?
+// [MenuAction::Accept, MenuAction::Quit].iter().for_each(|a| {
+//     match (a, menu_action_state.just_pressed(*a)) {
+//         (MenuAction::Accept, true) => state.set(AppState::Game).unwrap(),
+//         (MenuAction::Quit, true) => app_exit_events.send(AppExit),
+//         _ => {}
+//     }
+// });
 fn menu_input_system(
     mut state: ResMut<State<AppState>>,
     mut gamestate: ResMut<State<AppGameState>>,
@@ -226,9 +233,9 @@ fn menu_input_system(
     mut rapier_cfg: ResMut<RapierConfiguration>,
     mut app_exit_events: EventWriter<AppExit>,
 ) {
-    if state.current() != &AppState::StartMenu
-        && menu_action_state.just_pressed(MenuAction::ExitToMenu)
-    {
+    let want_menu = state.current() != &AppState::StartMenu
+        && menu_action_state.just_pressed(MenuAction::ExitToMenu);
+    if want_menu {
         state.set(AppState::StartMenu).unwrap();
         gamestate.set(AppGameState::Invalid).unwrap();
         rapier_cfg.physics_pipeline_active = true;

@@ -2,7 +2,9 @@
 
 mod arena;
 mod assets;
+mod asteroid;
 mod background;
+mod contact;
 mod enums;
 mod laser;
 mod menu;
@@ -24,7 +26,9 @@ mod prelude {
     pub use crate::{
         arena::*,
         assets::*,
+        asteroid::*,
         background::*,
+        contact::*,
         enums::*,
         laser::*,
         menu::*,
@@ -70,7 +74,7 @@ fn main() {
         .add_plugin(ArenaPlugin)
         .add_plugin(PlayerShipPlugin)
         .add_plugin(LaserPlugin)
-        // .add_plugin(AsteroidPlugin)
+        .add_plugin(AsteroidPlugin)
         // .add_plugin(HudPlugin)
         .add_plugin(MenuPlugin)
         .add_plugin(StatesPlugin)

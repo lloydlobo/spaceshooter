@@ -40,6 +40,7 @@ pub struct Ship {
     pub invincible_time_secs: f32,
 }
 
+/// Player ship damage.
 #[derive(Component, Clone, Copy)]
 pub struct Damage {
     pub value: u32,
