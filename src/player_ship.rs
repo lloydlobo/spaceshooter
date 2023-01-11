@@ -218,8 +218,62 @@ fn ship_input_system(
     }
 }
 
-fn ship_damage() {}
+fn ship_damage(
+    mut commands: Commands, mut gamestate: ResMut<State<AppGameState>>,
+    mut ship_asteroid_contact_events: EventReader<ShipAsteroidContactEvent>,
+    mut explosion_spawn_events: EventWriter<SpawnExplosionEvent>,
+    mut ships: Query<(&mut Ship, &Transform)>,
+) {
+    for event in ship_asteroid_contact_events.iter() {
+        let (mut ship, ship_transform) = ships
+            .get_mut(event.ship)
+            .expect("Ship referenced in event should not exist");
 
-fn ship_invincible_color() {}
+        // [ ]: Pattern match methods on ship?
+        if ship.invincible_timer.finished() {
+            ship.invincible_time_secs = 0f32;
+            ship.life -= 1;
+
+            match ship.life {
+                0 => {
+                    explosion_spawn_events.send(SpawnExplosionEvent {
+                        kind: ExplosionKind::ShipDead,
+                        x: ship_transform.translation.x,
+                        y: ship_transform.translation.y,
+                    });
+                    commands.entity(event.ship).despawn_recursive();
+                    gamestate.set(AppGameState::GameOver).unwrap();
+                }
+                _ => {
+                    explosion_spawn_events.send(SpawnExplosionEvent {
+                        kind: ExplosionKind::ShipContact,
+                        x: ship_transform.translation.x,
+                        y: ship_transform.translation.y,
+                    });
+                }
+            }
+            ship.invincible_timer.reset();
+        } else if ship.invincible_time_secs
+            + ship.invincible_timer.elapsed_secs()
+            < MAX_INVINCIBLE_TIME
+        {
+            // Contact while invincible, re-arm the invincibility time if
+            // allowed.
+            ship.invincible_time_secs += ship.invincible_timer.elapsed_secs();
+            ship.invincible_timer.reset();
+        }
+    }
+}
+
+fn ship_invincible_color(mut ships: Query<(&Ship, &mut Sprite)>) {
+    for (ship, mut ship_sprite) in ships.iter_mut() {
+        if ship.invincible_timer.finished() {
+            ship_sprite.color = Color::WHITE;
+        } else {
+            let alpha = (ship.invincible_timer.elapsed_secs() * 2f32) % 1f32;
+            ship_sprite.color = Color::rgba(1f32, 0.4f32, 0.2f32, alpha);
+        }
+    }
+}
 
 //----------------------------------------------------------------
