@@ -2,9 +2,6 @@ use bevy::app::AppExit;
 
 use crate::prelude::*;
 
-#[derive(Component)]
-pub struct DrawBlinkTimer(pub Timer);
-
 /// List of user actions associated to menu/ui interaction.
 #[derive(Actionlike, Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum MenuAction {
@@ -26,28 +23,14 @@ pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(AppState::StartMenu).with_system(start_menu),
-        )
-        .add_system_set(
-            SystemSet::on_enter(AppGameState::Pause).with_system(pause_menu),
-        )
-        .add_system_set(
-            SystemSet::on_enter(AppGameState::GameOver)
-                .with_system(gameover_menu),
-        )
-        .add_system(menu_input_system)
-        .add_system(menu_blink_system)
-        .add_startup_system(setup);
+        app.add_system_set(SystemSet::on_enter(AppState::StartMenu).with_system(start_menu))
+            .add_system_set(SystemSet::on_enter(AppGameState::Pause).with_system(pause_menu))
+            .add_system_set(SystemSet::on_enter(AppGameState::GameOver).with_system(gameover_menu))
+            .add_system(menu_input_system)
+            .add_system(menu_blink_system)
+            .add_startup_system(setup);
     }
 }
-
-pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
-    (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
-    (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
-    (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
-    (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
-];
 
 /// * Insert a mapping between `input` and `action`.
 /// * Pushes a [`Command`] to the queue for inserting a [`Resource`] in the
@@ -114,10 +97,7 @@ fn start_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
                     ),
                     ..default()
                 },
-                DrawBlinkTimer(Timer::from_seconds(
-                    0.5f32,
-                    TimerMode::Repeating,
-                )),
+                DrawBlinkTimer(Timer::from_seconds(0.5f32, TimerMode::Repeating)),
             ));
         });
 }
@@ -164,10 +144,7 @@ fn gameover_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
                     ),
                     ..default()
                 },
-                DrawBlinkTimer(Timer::from_seconds(
-                    0.5f32,
-                    TimerMode::Repeating,
-                )),
+                DrawBlinkTimer(Timer::from_seconds(0.5f32, TimerMode::Repeating)),
             ));
         });
 }
@@ -201,19 +178,14 @@ fn pause_menu(mut commands: Commands, assets: ResMut<UiAssets>) {
                     ),
                     ..default()
                 },
-                DrawBlinkTimer(Timer::from_seconds(
-                    0.5f32,
-                    TimerMode::Repeating,
-                )),
+                DrawBlinkTimer(Timer::from_seconds(0.5f32, TimerMode::Repeating)),
             ));
         });
 }
 
 //----------------------------------------------------------------
 
-fn menu_blink_system(
-    time: Res<Time>, mut query: Query<(&mut DrawBlinkTimer, &mut Visibility)>,
-) {
+fn menu_blink_system(time: Res<Time>, mut query: Query<(&mut DrawBlinkTimer, &mut Visibility)>) {
     for (mut blink_timer, mut visibility) in query.iter_mut() {
         blink_timer.0.tick(time.delta());
 
@@ -233,10 +205,8 @@ fn menu_blink_system(
 //     }
 // });
 fn menu_input_system(
-    mut state: ResMut<State<AppState>>,
-    mut gamestate: ResMut<State<AppGameState>>,
-    menu_action_state: Res<ActionState<MenuAction>>,
-    mut rapier_cfg: ResMut<RapierConfiguration>,
+    mut state: ResMut<State<AppState>>, mut gamestate: ResMut<State<AppGameState>>,
+    menu_action_state: Res<ActionState<MenuAction>>, mut rapier_cfg: ResMut<RapierConfiguration>,
     mut app_exit_events: EventWriter<AppExit>,
 ) {
     let want_menu = state.current() != &AppState::StartMenu
@@ -290,6 +260,13 @@ fn menu_input_system(
 mod tests {
     use super::*;
 
+    pub const KEY_ACTION_PAIRS: [(KeyCode, MenuAction); 4] = [
+        (KeyCode::Return, MenuAction::Accept), //GamepadButtonType::South
+        (KeyCode::Escape, MenuAction::PauseUnpause), //GamepadButtonType::Start
+        (KeyCode::Back, MenuAction::ExitToMenu), //GamepadButtonType::Select
+        (KeyCode::Escape, MenuAction::Quit),   //GamepadButtonType::East
+    ];
+
     #[test]
     fn test_menu_action_pairs() {
         assert_eq!(KEY_ACTION_PAIRS.len(), 4);
@@ -297,12 +274,10 @@ mod tests {
 
     #[test]
     fn test_menu_action_pairs_keycode() {
-        KEY_ACTION_PAIRS.iter().enumerate().for_each(
-            |(i, (keycode, action))| {
-                assert_eq!(keycode, &KEY_ACTION_PAIRS[i].0);
-                assert_eq!(action, &KEY_ACTION_PAIRS[i].1);
-            },
-        );
+        KEY_ACTION_PAIRS.iter().enumerate().for_each(|(i, (keycode, action))| {
+            assert_eq!(keycode, &KEY_ACTION_PAIRS[i].0);
+            assert_eq!(action, &KEY_ACTION_PAIRS[i].1);
+        });
     }
 }
 
@@ -322,12 +297,8 @@ mod keys {
 
     use crate::prelude::*;
 
-    pub const ACTIONS: [MenuAction; 4] = [
-        MenuAction::Accept,
-        MenuAction::PauseUnpause,
-        MenuAction::ExitToMenu,
-        MenuAction::Quit,
-    ];
+    pub const ACTIONS: [MenuAction; 4] =
+        [MenuAction::Accept, MenuAction::PauseUnpause, MenuAction::ExitToMenu, MenuAction::Quit];
 
     enum ActionMode {
         KeyCode,
@@ -343,33 +314,23 @@ mod keys {
         let actions: Enumerate<Iter<MenuAction>> = actions.iter().enumerate();
         match action_type {
             ActionMode::KeyCode => KeyPad {
-                key_code: Some(
-                    actions
-                        .map(|(i, a)| (get_scheme(*a).0, ACTIONS[i]))
-                        .collect(),
-                ),
+                key_code: Some(actions.map(|(i, a)| (get_scheme(*a).0, ACTIONS[i])).collect()),
                 gamepad_button: None,
             },
             ActionMode::GamepadButton => KeyPad {
                 key_code: None,
                 gamepad_button: Some(
-                    actions
-                        .map(|(i, a)| (get_scheme(*a).1, ACTIONS[i]))
-                        .collect(),
+                    actions.map(|(i, a)| (get_scheme(*a).1, ACTIONS[i])).collect(),
                 ),
             },
         }
     }
 
-    fn get_scheme(menu_action: MenuAction) -> (KeyCode, GamepadButtonType) {
+    const fn get_scheme(menu_action: MenuAction) -> (KeyCode, GamepadButtonType) {
         match menu_action {
             MenuAction::Accept => (KeyCode::Return, GamepadButtonType::South),
-            MenuAction::PauseUnpause => {
-                (KeyCode::Escape, GamepadButtonType::Start)
-            }
-            MenuAction::ExitToMenu => {
-                (KeyCode::Back, GamepadButtonType::Select)
-            }
+            MenuAction::PauseUnpause => (KeyCode::Escape, GamepadButtonType::Start),
+            MenuAction::ExitToMenu => (KeyCode::Back, GamepadButtonType::Select),
             MenuAction::Quit => (KeyCode::Escape, GamepadButtonType::East),
         }
     }

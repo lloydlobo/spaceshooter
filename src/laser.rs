@@ -9,11 +9,6 @@ pub struct LaserSpawnEvent {
     pub velocity: Velocity,
 }
 
-#[derive(Component)]
-pub struct Laser {
-    pub despawn_timer: Timer,
-}
-
 //----------------------------------------------------------------
 
 pub struct LaserPlugin;
@@ -34,10 +29,8 @@ impl Plugin for LaserPlugin {
 //----------------------------------------------------------------
 
 fn spawn_laser(
-    mut commands: Commands,
-    mut laser_spawn_events: EventReader<LaserSpawnEvent>,
-    handles: Res<SpriteAssets>, audios: Res<AudioAssets>,
-    audio_output: Res<Audio>,
+    mut commands: Commands, mut laser_spawn_events: EventReader<LaserSpawnEvent>,
+    handles: Res<SpriteAssets>, audios: Res<AudioAssets>, audio_output: Res<Audio>,
 ) {
     for spawn_event in laser_spawn_events.iter() {
         let transform: Transform = spawn_event.transform;
@@ -47,16 +40,9 @@ fn spawn_laser(
         );
         commands.spawn((
             SpriteBundle {
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(5f32, 20f32)),
-                    ..default()
-                },
+                sprite: Sprite { custom_size: Some(Vec2::new(5f32, 20f32)), ..default() },
                 transform: Transform {
-                    translation: Vec3::new(
-                        transform.translation.x,
-                        transform.translation.y,
-                        2f32,
-                    ),
+                    translation: Vec3::new(transform.translation.x, transform.translation.y, 2f32),
                     rotation: transform.rotation,
                     ..default()
                 },
@@ -79,8 +65,7 @@ fn spawn_laser(
 //----------------------------------------------------------------
 
 fn laser_timeout_system(
-    mut commands: Commands, time: Res<Time>,
-    gamestate: Res<State<AppGameState>>,
+    mut commands: Commands, time: Res<Time>, gamestate: Res<State<AppGameState>>,
     mut query: Query<(Entity, &mut Laser)>,
 ) {
     if gamestate.current() == &AppGameState::Game {

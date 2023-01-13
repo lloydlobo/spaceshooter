@@ -4,6 +4,8 @@ pub enum ExplosionKind {
     ShipDead,
     ShipContact,
     LaserOnAsteroid,
+    AsteroidOnGuardian,
+    //GuardianOnAsteroid,
 }
 
 pub struct SpawnExplosionEvent {
@@ -12,12 +14,6 @@ pub struct SpawnExplosionEvent {
     pub y: f32,
 }
 
-#[derive(Component)]
-pub struct Explosion {
-    timer: Timer,
-    start_scale: f32,
-    end_scale: f32,
-}
 //----------------------------------------------------------------
 
 pub struct ExplosionPlugin;
@@ -52,12 +48,10 @@ impl Plugin for ExplosionPlugin {
 /// * `audio_output` - Audio output
 fn catch_explosion_event(
     mut commands: Commands, mut event_reader: EventReader<SpawnExplosionEvent>,
-    handles: Res<SpriteAssets>, audios: Res<AudioAssets>,
-    audio_output: Res<Audio>,
+    handles: Res<SpriteAssets>, audios: Res<AudioAssets>, audio_output: Res<Audio>,
 ) {
     for event in event_reader.iter() {
-        let (texture, sound, start_size, end_scale, duration) = match event.kind
-        {
+        let (texture, sound, start_size, end_scale, duration) = match event.kind {
             ExplosionKind::ShipDead => (
                 handles.ship_explosion.clone(),
                 audios.ship_explosion.clone(),
@@ -75,6 +69,14 @@ fn catch_explosion_event(
             ExplosionKind::LaserOnAsteroid => (
                 handles.asteroid_explosion.clone(),
                 audios.asteroid_explosion.clone(),
+                Vec2::new(36f32, 32f32),
+                5f32,
+                1.5f32,
+            ),
+            // [ ]: Use assets for guardians.
+            ExplosionKind::AsteroidOnGuardian => (
+                handles.guardian_explosion.clone(),
+                audios.guardian_explosion.clone(),
                 Vec2::new(36f32, 32f32),
                 5f32,
                 1.5f32,
@@ -129,27 +131,26 @@ fn animate_explosion(
         if explosion.timer.finished() {
             commands.entity(entity).despawn();
         } else {
-            transform.scale = Vec3::splat(
-                explosion.start_scale
-                    + (explosion.end_scale - (explosion).start_scale)
-                        * (explosion.timer.elapsed_secs()
-                            / explosion.timer.duration().as_secs_f32()),
-            );
+            transform.scale = Vec3::splat((explosion.end_scale - (explosion).start_scale).mul_add(
+                explosion.timer.elapsed_secs() / explosion.timer.duration().as_secs_f32(),
+                explosion.start_scale,
+            ));
         }
     }
 }
 
-/// Get the new scale of the explosion.
-///
-/// # Arguments
-///
-/// * `e` - The explosion to get the new scale of.
-///
-/// # Returns
-///
-/// The new scale of the explosion.
-fn get_new_scale(e: &mut Explosion) -> f32 {
-    let diff: f32 = e.end_scale - e.start_scale;
-    let time: f32 = e.timer.elapsed_secs() / e.timer.duration().as_secs_f32();
-    e.start_scale + diff * time
-}
+// Get the new scale of the explosion.
+//
+// # Arguments
+//
+// * `e` - The explosion to get the new scale of.
+//
+// # Returns
+//
+// The new scale of the explosion.
+// fn get_new_scale(e: &mut Explosion) -> f32 {
+//     let diff: f32 = e.end_scale - e.start_scale;
+//     let time: f32 = e.timer.elapsed_secs() /
+// e.timer.duration().as_secs_f32();     e.start_scale + diff * time
+// }
+//

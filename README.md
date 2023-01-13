@@ -1,11 +1,50 @@
 # SpaceShooter
 
+> A minimalist single screen space shooter developped in Rust with Bevy.
+>
+> This is a 'super-example' or 'micro-game' for the Bevy engine, that can be used by beginners to get
+> some starting points for their own game.
+>
+> It includes use of game states, menu UI , HUD UI, collision detection, pause/resume, shader
+> background, particle effects.
+>
+> It showcases some other commonplace bevy plugins, bevy_rapier for physics, leafwing-input-manager
+> for game inputs, bevy_hanabi for particle effects.
+>
+> > [Source](https://github.com/BorisBoutillier/Kataster)
+
+## TODO
+
+```
+                    Add Solar system NBody here
+                    vvvvvvvvvvvvvvvvvvvvvvvvv
+        o
+
+                 o
+
+                     --
+                    |  |
+                     --
+
+                     o
+
+                                    o
+
+
+
+                                 O
+
+               o
+
+```
+
 ## Dev
 
 ### Linting
 
 ```bash
 cargo +nightly fmt
+cargo clippy -- -W clippy::pedantic
 
 ```
 

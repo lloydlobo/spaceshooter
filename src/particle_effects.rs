@@ -1,5 +1,3 @@
-use std::ops::Neg;
-
 use bevy_hanabi::prelude::*;
 
 use crate::prelude::*;
@@ -52,20 +50,14 @@ fn add_thrust_particles_to_ship(
                 dimension: ShapeDimension::Volume,
             })
             .render(ColorOverLifetimeModifier { gradient })
-            .render(SizeOverLifetimeModifier {
-                gradient: Gradient::constant(Vec2::splat(2f32)),
-            }),
+            .render(SizeOverLifetimeModifier { gradient: Gradient::constant(Vec2::splat(2f32)) }),
         );
 
         commands.entity(ship_entity).add_children(|parent| {
             parent.spawn((
                 ParticleEffectBundle {
                     effect: ParticleEffect::new(effect),
-                    transform: Transform::from_translation(Vec3::new(
-                        0f32,
-                        3f32.neg(),
-                        0f32,
-                    )),
+                    transform: Transform::from_translation(Vec3::new(0f32, 3f32.neg(), 0f32)),
                     ..default()
                 },
                 ExhaustEffect,
