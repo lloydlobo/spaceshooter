@@ -2,8 +2,6 @@ use rand::rngs::ThreadRng;
 
 use crate::prelude::*;
 
-const MAX_ASTEROID_COUNT: usize = 20usize;
-
 pub struct AsteroidSpawnEvent {
     pub size: AsteroidSize,
     pub x: f32,

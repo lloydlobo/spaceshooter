@@ -3,9 +3,14 @@
 use crate::prelude::*;
 
 //----------------------------------------------------------------
+// asteroid
+
+pub const MAX_ASTEROID_COUNT: usize = 20usize;
+
+//----------------------------------------------------------------
 // player_ship
 
-pub const START_LIFE: u32 = 3u32;
+pub const START_LIFE: u32 = 7u32;
 pub const INVINCIBLE_TIME: f32 = 2f32;
 pub const MAX_INVINCIBLE_TIME: f32 = 5f32;
 
@@ -18,7 +23,7 @@ pub const ARENA_PADDING: f32 = 20f32;
 //----------------------------------------------------------------
 // fire_guardian
 
-pub const MAX_GUARDIAN_COUNT: usize = 4usize;
+pub const MAX_GUARDIAN_COUNT: usize = 2usize;
 pub const GUARDIAN_SIZE: (f32, f32) = (97f32, 97f32);
 pub const SPRITE_SCALE: f32 = 1f32;
 

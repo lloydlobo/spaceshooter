@@ -9,9 +9,12 @@ use crate::prelude::*;
 #[derive(Actionlike, Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum PlayerAction {
     Forward,
+    Backward,
     RotateLeft,
     RotateRight,
     Fire,
+    SpeedUp,
+    SlowDown,
 }
 
 pub struct ShipAsteroidContactEvent {
@@ -49,23 +52,33 @@ fn spawn_ship(mut commands: Commands, handles: Res<SpriteAssets>) {
     let mut input_map = InputMap::new([
         (KeyCode::W, PlayerAction::Forward),
         (KeyCode::Up, PlayerAction::Forward),
+        (KeyCode::S, PlayerAction::Backward),
+        (KeyCode::Down, PlayerAction::Backward),
         (KeyCode::A, PlayerAction::RotateLeft),
         (KeyCode::Left, PlayerAction::RotateLeft),
         (KeyCode::D, PlayerAction::RotateRight),
         (KeyCode::Right, PlayerAction::RotateRight),
         (KeyCode::Space, PlayerAction::Fire),
-        (KeyCode::I, PlayerAction::Fire),
+        (KeyCode::I, PlayerAction::SpeedUp),
+        (KeyCode::K, PlayerAction::SlowDown),
     ]);
 
     input_map.insert(GamepadButtonType::South, PlayerAction::Fire);
+    input_map.insert(GamepadButtonType::RightTrigger, PlayerAction::SpeedUp);
+    input_map.insert(GamepadButtonType::LeftTrigger, PlayerAction::SlowDown);
     input_map.insert(
         SingleAxis::positive_only(GamepadAxisType::LeftStickY, 0.4f32),
         PlayerAction::Forward,
     );
+    // input_map.insert(
+    //     SingleAxis::negative_only(GamepadAxisType::LeftStickY, 0.4f32.neg()),
+    //     PlayerAction::Forward,
+    // );
     input_map.insert(
-        SingleAxis::negative_only(GamepadAxisType::LeftStickY, 0.4f32.neg()),
-        PlayerAction::Forward,
+        SingleAxis::negative_only(GamepadAxisType::LeftStickY, 0.4f32),
+        PlayerAction::Backward,
     );
+
     input_map.insert(
         SingleAxis::positive_only(GamepadAxisType::LeftStickX, 0.4f32),
         PlayerAction::RotateRight,
@@ -132,10 +145,13 @@ fn ship_input_system(
         &Transform,
         &mut Ship,
     )>,
+    time: Res<Time>,
 ) {
     if gamestate.current() == &AppGameState::Game {
         for (action_state, mut impulse, mut velocity, transform, mut ship) in query.iter_mut() {
             let thrust: f32 = if action_state.pressed(PlayerAction::Forward) { 1f32 } else { 0f32 };
+            let brake = if action_state.pressed(PlayerAction::Backward) { 0.05f32 } else { 1f32 };
+
             let rotation = if action_state.pressed(PlayerAction::RotateLeft) {
                 1
             } else if action_state.pressed(PlayerAction::RotateRight) {
@@ -146,11 +162,40 @@ fn ship_input_system(
 
             let fire: bool = action_state.pressed(PlayerAction::Fire);
 
+            let mut timer = Timer::from_seconds(0.3, TimerMode::Once);
+            let mut repeating = Timer::from_seconds(0.3, TimerMode::Repeating);
+            // assert_eq!(timer.elapsed_secs(), 1.0);
+            // assert_eq!(repeating.elapsed_secs(), 0.5);
+            let (slow_down, speed_up) = (
+                if action_state.pressed(PlayerAction::SlowDown) {
+                    timer.tick(Duration::from_secs_f32(1.5));
+                    if timer.finished() {
+                        0.4f32
+                    } else {
+                        1f32
+                    }
+                } else {
+                    1f32
+                },
+                if action_state.pressed(PlayerAction::SpeedUp) {
+                    repeating.tick(Duration::from_secs_f32(1.5));
+                    if repeating.finished() {
+                        2f32
+                    } else {
+                        1f32
+                    }
+                } else {
+                    1f32
+                },
+            );
+
             if rotation != 0 {
                 velocity.angvel = rotation as f32 * ship.rotation_speed;
             }
 
-            impulse.impulse = (transform.rotation * (Vec3::Y * thrust * ship.thrust)).truncate();
+            impulse.impulse = (transform.rotation
+                * (Vec3::Y * thrust * ship.thrust * brake * speed_up * slow_down))
+                .truncate();
 
             if fire && ship.cannon_timer.finished() {
                 laser_spawn_events

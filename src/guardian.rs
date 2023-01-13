@@ -72,27 +72,11 @@ impl Plugin for GuardianPlugin {
             .add_system_set(
                 SystemSet::on_update(AppState::Game)
                     .with_system(arena_guardians)
-                    // .with_system(spawn_prime)
                     .with_system(spawn_guardian_event)
                     .with_system(guardian_dampening_system)
                     .with_system(guardian_damage.after(ContactLabel)),
             );
     }
-}
-
-fn spawn_prime(
-    mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-    // Rectangle
-    commands.spawn(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(0.25f32, 0.25f32, 0.25f32),
-            custom_size: Some(Vec2::new(50f32, 100f32)),
-            ..default()
-        },
-        ..default()
-    });
 }
 
 //----------------------------------------------------------------
@@ -142,7 +126,7 @@ fn arena_guardians(
         y,
         vx: rng.gen_range(rng_arena_w), // Drastically reduce velocity
         vy: rng.gen_range(rng_arena_h), // Drastically reduce velocity
-        angvel: rng.gen_range(8f32.neg()..8f32),
+        angvel: rng.gen_range(2f32.neg()..2f32),
     });
 }
 
@@ -151,8 +135,8 @@ fn arena_guardians(
 fn guardian_dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<Guardian>>) {
     for mut velocity in query.iter_mut() {
         let elapsed: f32 = time.delta_seconds();
-        velocity.angvel *= 0.2f32.powf(elapsed); //0.1f32...
-        velocity.linvel *= 0.4f32.powf(elapsed); //0.4f32...
+        velocity.angvel *= 0.01f32.powf(elapsed); //0.1f32...
+        velocity.linvel *= 0.04f32.powf(elapsed); //0.4f32...
     }
 }
 
@@ -184,8 +168,8 @@ fn spawn_guardian_event(
             // RigidBody::Fixed,
             Collider::ball(radius),
             ActiveEvents::COLLISION_EVENTS, // CONTACT_FORCE_EVENTS
-            // Velocity { linvel: Vec2::new(event.vx, event.vy), angvel: event.angvel },
-            Velocity { linvel: Vec2::ZERO, angvel: 0f32 },
+            Velocity { linvel: Vec2::new(event.vx, event.vy), angvel: event.angvel },
+            // Velocity { linvel: Vec2::ZERO, angvel: 0f32 },
         ));
     }
 }
